@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	tele "gopkg.in/telebot.v4"
@@ -22,10 +22,28 @@ func main() {
 
 	b.Handle("/s", func(c tele.Context) error {
 
-		arguments := c.Message().ReplyTo.Text
-		fmt.Println(c.Message().ReplyTo.Text)
+		if !c.Message().IsReply() {
+			return c.Send("Syntax error")
+		}
 
-		return c.Send(arguments)
+		arguments := c.Message().ReplyTo.Text
+		switches := c.Args()
+
+		if len(switches) != 2 {
+			return c.Send("Bad syntax")
+		}
+
+		if strings.Contains(arguments, switches[0]) {
+			newArgs := strings.ReplaceAll(arguments, switches[0], switches[1])
+			sender := c.Message().ReplyTo.Sender.FirstName
+			//fmt.Println(sender)
+
+			owtput := "<" + sender + ">" + ":" + " " + newArgs
+
+			return c.Send(owtput)
+		}
+
+		return c.Send("Syntax error")
 
 	})
 
